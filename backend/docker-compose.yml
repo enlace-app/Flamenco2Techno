@@ -1,0 +1,136 @@
+version: '3.9'
+
+services:
+  # ── Base de datos PostgreSQL ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: f2t_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-f2t_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-f2t_secret}
+      POSTGRES_DB: ${DB_NAME:-flamenco2techno}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-f2t_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - f2t_network
+
+  # ── Redis (cola Celery + caché) ──────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: f2t_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - f2t_network
+
+  # ── API FastAPI ──────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: f2t_api
+    restart: unless-stopped
+    command: api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-f2t_user}:${DB_PASSWORD:-f2t_secret}@postgres:5432/${DB_NAME:-flamenco2techno}
+      REDIS_URL: redis://redis:6379/0
+      MAX_FILE_SIZE_MB: 100
+      STORAGE_PATH: /app/storage
+      LOG_LEVEL: INFO
+      API_KEY: ${API_KEY:-dev-secret-key-change-in-production}
+    volumes:
+      - audio_storage:/app/storage
+      - ./logs:/app/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - f2t_network
+
+  # ── Worker Celery (procesamiento de audio) ───────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: f2t_worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-f2t_user}:${DB_PASSWORD:-f2t_secret}@postgres:5432/${DB_NAME:-flamenco2techno}
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_PATH: /app/storage
+      LOG_LEVEL: INFO
+    volumes:
+      - audio_storage:/app/storage
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+      - postgres
+    deploy:
+      # Escalar workers fácilmente: docker-compose up --scale worker=3
+      replicas: 1
+      resources:
+        limits:
+          memory: 4G    # Demucs y MusicGen son intensivos en RAM
+        reservations:
+          memory: 2G
+    networks:
+      - f2t_network
+
+  # ── Flower: monitoreo de Celery (opcional) ───────────────────────────────
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: f2t_flower
+    restart: unless-stopped
+    command: flower
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      FLOWER_PORT: 5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    networks:
+      - f2t_network
+    profiles:
+      - monitoring   # Solo se levanta con: docker-compose --profile monitoring up
+
+volumes:
+  postgres_data:
+  redis_data:
+  audio_storage:
+
+networks:
+  f2t_network:
+    driver: bridge
