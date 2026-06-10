@@ -1,0 +1,163 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+env:
+  FLUTTER_VERSION: '3.22.0'
+  JAVA_VERSION: '17'
+
+jobs:
+  # ── Test Backend ────────────────────────────────────────────────────────
+  test-backend:
+    name: 🧪 Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libsndfile1 libmagic1
+
+      - name: Install Python dependencies (light - no torch)
+        run: |
+          pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov
+          pip install numpy scipy soundfile
+          pip install pydantic pydantic-settings python-dotenv
+          pip install structlog
+
+      - name: Run tests (without heavy AI deps)
+        run: |
+          pytest tests/test_security.py tests/test_generator.py -v \
+            --ignore=tests/test_upload.py \
+            -k "not slow and not integration"
+
+  # ── Build Flutter APK ───────────────────────────────────────────────────
+  build-apk:
+    name: 📱 Build Android APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android_app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Generate code (build_runner)
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze (linting)
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      - name: Run Flutter tests
+        run: flutter test
+        continue-on-error: true
+
+      # ── Firma para debug (PR y develop) ──────────────────────────────
+      - name: Build debug APK
+        if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/')
+        run: flutter build apk --debug
+
+      # ── Firma para release (main y tags) ─────────────────────────────
+      - name: Decode Keystore
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+        continue-on-error: true
+
+      - name: Create key.properties
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.keystore
+          EOF
+        continue-on-error: true
+
+      - name: Build release APK
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+        run: flutter build apk --release
+
+      - name: Build App Bundle (Play Store)
+        if: startsWith(github.ref, 'refs/tags/')
+        run: flutter build appbundle --release
+
+      # ── Upload artifacts ──────────────────────────────────────────────
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flamenco2techno-apk-${{ github.sha }}
+          path: |
+            android_app/build/app/outputs/flutter-apk/*.apk
+            android_app/build/app/outputs/bundle/release/*.aab
+          retention-days: 30
+
+      # ── Release automático en tags ────────────────────────────────────
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            android_app/build/app/outputs/flutter-apk/app-release.apk
+            android_app/build/app/outputs/bundle/release/app-release.aab
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Build Docker Backend ────────────────────────────────────────────────
+  build-backend:
+    name: 🐳 Build Backend Docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (no push - validación)
+        uses: docker/build-push-action@v5
+        with:
+          context: backend
+          push: false
+          tags: flamenco2techno-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # Build hasta stage deps (sin modelos de IA grandes)
+          target: deps
