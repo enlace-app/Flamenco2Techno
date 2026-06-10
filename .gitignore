@@ -1,0 +1,56 @@
+# ── Flutter / Dart ────────────────────────────────────────────────────────
+android_app/.dart_tool/
+android_app/.flutter-plugins
+android_app/.flutter-plugins-dependencies
+android_app/.packages
+android_app/build/
+android_app/.pub-cache/
+android_app/.pub/
+android_app/android/.gradle/
+android_app/android/app/release.keystore
+android_app/android/key.properties
+android_app/android/local.properties
+android_app/ios/
+android_app/web/
+android_app/linux/
+android_app/macos/
+android_app/windows/
+android_app/**/*.g.dart
+android_app/**/*.freezed.dart
+android_app/**/*.gr.dart
+
+# ── Python / Backend ──────────────────────────────────────────────────────
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/**/*.pyc
+backend/.venv/
+backend/venv/
+backend/.env           # NUNCA subir .env con secretos reales
+backend/storage/       # Archivos de audio de usuarios
+backend/logs/
+backend/.pytest_cache/
+backend/htmlcov/
+backend/.coverage
+backend/dist/
+backend/build/
+
+# ── Docker ────────────────────────────────────────────────────────────────
+backend/docker/data/
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Secretos y keys ───────────────────────────────────────────────────────
+*.keystore
+*.jks
+key.properties
+.env
+.env.local
+.env.production
+secrets/
