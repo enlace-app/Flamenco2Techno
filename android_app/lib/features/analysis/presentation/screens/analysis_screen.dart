@@ -10,7 +10,7 @@ import '../providers/analysis_provider.dart';
 import '../widgets/analysis_card.dart';
 import '../widgets/waveform_placeholder.dart';
 
-/// Pantalla que muestra el análisis musical del archivo subido:
+/// Pantalla que muestra el anÃ¡lisis musical del archivo subido:
 /// BPM, tonalidad, stems detectados y estructura.
 class AnalysisScreen extends ConsumerWidget {
   const AnalysisScreen({super.key, required this.jobId});
@@ -27,7 +27,7 @@ class AnalysisScreen extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.go(AppRoutes.upload),
         ),
-        title: const Text('ANÁLISIS MUSICAL'),
+        title: const Text('ANÃLISIS MUSICAL'),
       ),
       body: analysisAsync.when(
         loading: () => _buildLoading(context),
@@ -37,14 +37,14 @@ class AnalysisScreen extends ConsumerWidget {
     );
   }
 
-  // ── Loading ────────────────────────────────────────────────────────
+  // â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildLoading(BuildContext context) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Animación de análisis
+          // AnimaciÃ³n de anÃ¡lisis
           SizedBox(
             width: 80,
             height: 80,
@@ -96,7 +96,7 @@ class AnalysisScreen extends ConsumerWidget {
     );
   }
 
-  // ── Error ──────────────────────────────────────────────────────────
+  // â”€â”€ Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildError(BuildContext context, String error) {
     return Center(
@@ -108,7 +108,7 @@ class AnalysisScreen extends ConsumerWidget {
             const Icon(Icons.error_outline, color: AppTheme.neonMagenta, size: 64),
             const SizedBox(height: 16),
             Text(
-              'Error en el análisis',
+              'Error en el anÃ¡lisis',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
@@ -124,7 +124,7 @@ class AnalysisScreen extends ConsumerWidget {
     );
   }
 
-  // ── Result ─────────────────────────────────────────────────────────
+  // â”€â”€ Result â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildResult(
     BuildContext context,
@@ -151,7 +151,7 @@ class AnalysisScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Grid de métricas
+                // Grid de mÃ©tricas
                 Row(
                   children: [
                     Expanded(
@@ -181,10 +181,10 @@ class AnalysisScreen extends ConsumerWidget {
 
                 const SizedBox(height: 12),
 
-                // Duración
+                // DuraciÃ³n
                 AnalysisCard(
                   icon: Icons.timer_outlined,
-                  label: 'DURACIÓN',
+                  label: 'DURACIÃ“N',
                   value: _formatDuration(analysis.durationSeconds),
                   accent: AppTheme.neonGreen,
                   fullWidth: true,
@@ -198,7 +198,7 @@ class AnalysisScreen extends ConsumerWidget {
 
                 const SizedBox(height: 32),
 
-                // Info de conversión
+                // Info de conversiÃ³n
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -218,7 +218,7 @@ class AnalysisScreen extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'El BPM será ajustado al rango ${AppConstants.bpmMin}-${AppConstants.bpmMax} BPM durante la conversión',
+                          'El BPM serÃ¡ ajustado al rango ${AppConstants.bpmMin}-${AppConstants.bpmMax} BPM durante la conversiÃ³n',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: AppTheme.neonCyan.withOpacity(0.8),
                               ),
@@ -230,7 +230,7 @@ class AnalysisScreen extends ConsumerWidget {
 
                 const SizedBox(height: 32),
 
-                // Botón continuar
+                // BotÃ³n continuar
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
@@ -238,7 +238,7 @@ class AnalysisScreen extends ConsumerWidget {
                       context.go(AppRoutes.conversionRoute(jobId));
                     },
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('CONFIGURAR CONVERSIÓN'),
+                    label: const Text('CONFIGURAR CONVERSIÃ“N'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -255,11 +255,13 @@ class AnalysisScreen extends ConsumerWidget {
   }
 
   Widget _buildStemsCard(BuildContext context, AnalysisResult analysis) {
-    final stems = {
-      'Voz': (analysis.vocalsDetected, Icons.mic_none),
-      'Batería': (analysis.drumsDetected, Icons.drum),
-      'Bajo': (analysis.bassDetected, Icons.queue_music),
-    };
+    final stemNames = ['Voz', 'BaterÃ­a', 'Bajo'];
+    final stemDetected = [
+      analysis.vocalsDetected,
+      analysis.drumsDetected,
+      analysis.bassDetected,
+    ];
+    final stemIcons = [Icons.mic_none, Icons.drum, Icons.queue_music];
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -280,8 +282,10 @@ class AnalysisScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           Row(
-            children: stems.entries.map((entry) {
-              final (detected, icon) = entry.value;
+            children: List.generate(stemNames.length, (i) {
+              final name = stemNames[i];
+              final detected = stemDetected[i];
+              final icon = stemIcons[i];
               return Expanded(
                 child: Column(
                   children: [
@@ -309,7 +313,7 @@ class AnalysisScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      entry.key,
+                      name,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: detected
                                 ? AppTheme.textSecondary
@@ -328,7 +332,7 @@ class AnalysisScreen extends ConsumerWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ),
         ],
       ),
