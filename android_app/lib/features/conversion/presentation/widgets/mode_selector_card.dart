@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 
-/// Tarjeta de selección de modo Techno con descripción y colores únicos.
+/// Tarjeta de selecciÃ³n de modo Techno con descripciÃ³n y colores Ãºnicos.
 class ModeSelectorCard extends StatelessWidget {
   const ModeSelectorCard({
     super.key,
@@ -15,17 +15,17 @@ class ModeSelectorCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  Color get _accentColor => switch (mode) {
-        TechnoMode.soft => AppTheme.neonGreen,
-        TechnoMode.peak => AppTheme.neonCyan,
-        TechnoMode.hard => AppTheme.neonMagenta,
-      };
+  Color get _accentColor {
+    if (mode == TechnoMode.soft) return AppTheme.neonGreen;
+    if (mode == TechnoMode.hard) return AppTheme.neonMagenta;
+    return AppTheme.neonCyan;
+  }
 
-  IconData get _icon => switch (mode) {
-        TechnoMode.soft => Icons.waves,
-        TechnoMode.peak => Icons.bolt,
-        TechnoMode.hard => Icons.whatshot,
-      };
+  IconData get _icon {
+    if (mode == TechnoMode.soft) return Icons.waves;
+    if (mode == TechnoMode.hard) return Icons.whatshot;
+    return Icons.bolt;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +97,7 @@ class ModeSelectorCard extends StatelessWidget {
               ),
             ),
 
-            // Indicador de selección
+            // Indicador de selecciÃ³n
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 20,
