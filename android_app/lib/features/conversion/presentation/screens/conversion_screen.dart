@@ -9,7 +9,7 @@ import '../providers/conversion_provider.dart';
 import '../widgets/mode_selector_card.dart';
 import '../../upload/presentation/widgets/neon_progress_bar.dart';
 
-/// Pantalla de configuración y ejecución de la conversión a Techno.
+/// Pantalla de configuraciÃ³n y ejecuciÃ³n de la conversiÃ³n a Techno.
 class ConversionScreen extends ConsumerStatefulWidget {
   const ConversionScreen({super.key, required this.jobId});
 
@@ -34,7 +34,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: conversionState.maybeWhen(
-            converting: (_) => null, // Deshabilitar durante conversión
+            converting: (_) => null, // Deshabilitar durante conversiÃ³n
             orElse: () => () => context.go(
                   AppRoutes.analysisRoute(widget.jobId),
                 ),
@@ -51,7 +51,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
     );
   }
 
-  // ── Config ─────────────────────────────────────────────────────────
+  // â”€â”€ Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildConfigContent() {
     return CustomScrollView(
@@ -70,7 +70,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
                 const SizedBox(height: 4),
 
                 Text(
-                  'Selecciona el estilo de conversión',
+                  'Selecciona el estilo de conversiÃ³n',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ).animate().fadeIn(delay: 100.ms),
 
@@ -117,12 +117,12 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
 
                 const SizedBox(height: 12),
 
-                // Formato de exportación
+                // Formato de exportaciÃ³n
                 _buildFormatSelector(),
 
                 const SizedBox(height: 32),
 
-                // Botón principal
+                // BotÃ³n principal
                 SizedBox(
                   width: double.infinity,
                   child: Container(
@@ -140,7 +140,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _startConversion,
                       icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('INICIAR CONVERSIÓN'),
+                      label: const Text('INICIAR CONVERSIÃ“N'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -272,7 +272,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
     ).animate().fadeIn(delay: 650.ms);
   }
 
-  // ── Converting ─────────────────────────────────────────────────────
+  // â”€â”€ Converting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildConvertingContent(ConversionProgress progress) {
     return Padding(
@@ -280,7 +280,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Animación central
+          // AnimaciÃ³n central
           SizedBox(
             width: 120,
             height: 120,
@@ -328,7 +328,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
           const SizedBox(height: 40),
 
           Text(
-            'Este proceso puede tardar 2-5 minutos\nsegún la duración del audio',
+            'Este proceso puede tardar 2-5 minutos\nsegÃºn la duraciÃ³n del audio',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppTheme.textDisabled,
                 ),
@@ -340,16 +340,17 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
   }
 
   Widget _buildConversionSteps(ConversionProgress progress) {
-    final steps = [
-      ('Separando stems', JobStatus.separating),
-      ('Generando batería techno', JobStatus.generating),
-      ('Procesando efectos', JobStatus.mixing),
-      ('Exportando audio', JobStatus.exporting),
+    final steps = <Map<String, dynamic>>[
+      {'label': 'Separando stems', 'status': JobStatus.separating},
+      {'label': 'Generando baterÃ­a techno', 'status': JobStatus.generating},
+      {'label': 'Procesando efectos', 'status': JobStatus.mixing},
+      {'label': 'Exportando audio', 'status': JobStatus.exporting},
     ];
 
     return Column(
       children: steps.map((step) {
-        final (label, status) = step;
+        final label = step['label'] as String;
+        final status = step['status'] as JobStatus;
         final isActive = progress.status == status;
         final isDone = progress.status.index > status.index;
 
@@ -402,7 +403,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
     );
   }
 
-  // ── Error ──────────────────────────────────────────────────────────
+  // â”€â”€ Error â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildErrorContent(String message) {
     return Padding(
@@ -412,7 +413,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
         children: [
           const Icon(Icons.error_outline, color: AppTheme.neonMagenta, size: 64),
           const SizedBox(height: 16),
-          Text('ERROR EN CONVERSIÓN',
+          Text('ERROR EN CONVERSIÃ“N',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     color: AppTheme.neonMagenta,
                   )),
@@ -441,7 +442,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
     );
   }
 
-  // ── Success ────────────────────────────────────────────────────────
+  // â”€â”€ Success â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildSuccessContent(String conversionId) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -452,7 +453,7 @@ class _ConversionScreenState extends ConsumerState<ConversionScreen> {
     );
   }
 
-  // ── Actions ────────────────────────────────────────────────────────
+  // â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   void _startConversion() {
     ref.read(conversionNotifierProvider.notifier).startConversion(
