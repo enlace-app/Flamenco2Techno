@@ -1,34 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permisos de red -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Permisos de almacenamiento (Android < 13) -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29"
-        tools:ignore="ScopedStorage" />
-
-    <!-- Permisos de almacenamiento (Android 13+) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-
-    <!-- Vibración para feedback háptico -->
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <!-- Notificaciones (para jobs en background) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:label="Flamenco2Techno"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:enableOnBackInvokedCallback="true"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
@@ -36,7 +22,6 @@
         android:theme="@style/LaunchTheme"
         android:networkSecurityConfig="@xml/network_security_config">
 
-        <!-- Flutter activity principal -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -44,18 +29,13 @@
             android:taskAffinity=""
             android:theme="@style/NormalTheme"
             android:windowSoftInputMode="adjustResize">
-
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
-
-            <!-- App launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <!-- Abrir archivos de audio directamente -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.SEND" />
@@ -63,11 +43,9 @@
                 <data android:mimeType="audio/mpeg" />
                 <data android:mimeType="audio/wav" />
                 <data android:mimeType="audio/flac" />
-                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
 
-        <!-- Provider para compartir archivos generados -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -77,10 +55,5 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <!-- Desactivar analytics de Google por defecto -->
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
-            android:value="false" />
     </application>
 </manifest>
